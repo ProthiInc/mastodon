@@ -30,6 +30,7 @@ import {
   Following,
   Reblogs,
   Favourites,
+  DirectTimeline,
   HashtagTimeline,
   Notifications,
   FollowRequests,
@@ -79,12 +80,14 @@ const keyMap = {
   goToNotifications: 'g n',
   goToLocal: 'g l',
   goToFederated: 'g t',
+  goToDirect: 'g d',
   goToStart: 'g s',
   goToFavourites: 'g f',
   goToPinned: 'g p',
   goToProfile: 'g u',
   goToBlocked: 'g b',
   goToMuted: 'g m',
+  toggleHidden: 'x',
 };
 
 class SwitchingColumnsArea extends React.PureComponent {
@@ -129,16 +132,20 @@ class SwitchingColumnsArea extends React.PureComponent {
   render () {
     const { children } = this.props;
     const { mobile } = this.state;
+    const redirect = mobile ? <Redirect from='/' to='/timelines/home' exact /> : <Redirect from='/' to='/getting-started' exact />;
 
     return (
       <ColumnsAreaContainer ref={this.setRef} singleColumn={mobile}>
         <WrappedSwitch>
-          <Redirect from='/' to='/getting-started' exact />
+          {redirect}
           <WrappedRoute path='/getting-started' component={GettingStarted} content={children} />
           <WrappedRoute path='/keyboard-shortcuts' component={KeyboardShortcuts} content={children} />
           <WrappedRoute path='/timelines/home' component={HomeTimeline} content={children} />
           <WrappedRoute path='/timelines/public' exact component={PublicTimeline} content={children} />
-          <WrappedRoute path='/timelines/public/local' component={CommunityTimeline} content={children} />
+          <WrappedRoute path='/timelines/public/media' component={PublicTimeline} content={children} componentParams={{ onlyMedia: true }} />
+          <WrappedRoute path='/timelines/public/local' exact component={CommunityTimeline} content={children} />
+          <WrappedRoute path='/timelines/public/local/media' component={CommunityTimeline} content={children} componentParams={{ onlyMedia: true }} />
+          <WrappedRoute path='/timelines/direct' component={DirectTimeline} content={children} />
           <WrappedRoute path='/timelines/tag/:id' component={HashtagTimeline} content={children} />
           <WrappedRoute path='/timelines/list/:id' component={ListTimeline} content={children} />
 
@@ -385,6 +392,10 @@ export default class UI extends React.PureComponent {
     this.context.router.history.push('/timelines/public');
   }
 
+  handleHotkeyGoToDirect = () => {
+    this.context.router.history.push('/timelines/direct');
+  }
+
   handleHotkeyGoToStart = () => {
     this.context.router.history.push('/getting-started');
   }
@@ -424,6 +435,7 @@ export default class UI extends React.PureComponent {
       goToNotifications: this.handleHotkeyGoToNotifications,
       goToLocal: this.handleHotkeyGoToLocal,
       goToFederated: this.handleHotkeyGoToFederated,
+      goToDirect: this.handleHotkeyGoToDirect,
       goToStart: this.handleHotkeyGoToStart,
       goToFavourites: this.handleHotkeyGoToFavourites,
       goToPinned: this.handleHotkeyGoToPinned,

@@ -20,6 +20,7 @@ class Settings::ProfilesController < ApplicationController
       ActivityPub::UpdateDistributionWorker.perform_async(@account.id)
       redirect_to settings_profile_path, notice: I18n.t('generic.changes_saved_msg')
     else
+      @account.build_fields
       render :show
     end
   end
@@ -27,7 +28,7 @@ class Settings::ProfilesController < ApplicationController
   private
 
   def account_params
-    params.require(:account).permit(:display_name, :note, :avatar, :header, :locked, fields_attributes: [:name, :value])
+    params.require(:account).permit(:display_name, :note, :avatar, :header, :locked, :bot, fields_attributes: [:name, :value])
   end
 
   def set_account
